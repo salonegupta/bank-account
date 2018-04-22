@@ -23,7 +23,15 @@ decision)
   - Max withdrawal frequency = 3 transactions/day
   - Cannot withdraw when balance is less than withdrawal amount
 
+### Note about Validation handling for Deposit and Withdrawal endpoints
+Validations are handled in `AccountValidationConcern` using Aspect Oriented Programming (AOP)
+which calls adequate validators based on the use case being handled. In order to apply these
+validators on a method an annotation `@ValidateAccountTransaction` needs to be used on the
+method definitions. For example: `makeWithdrawal` method present in `WithdrawalService` is
+annotated with `@ValidateAccountTransaction`.
+
 ### How to run the project? ###
+* Run `gradle wrapper` command. This will generate a script: `gradlew.sh`
 * Execute `./gradlew bootRun` from Project root directory
 * Internet Connection needed to donwload jars from Maven Repo
 
