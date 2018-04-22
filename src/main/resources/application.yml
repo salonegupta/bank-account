@@ -1,0 +1,54 @@
+spring:
+  profiles: default
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create
+
+withdrawal:
+  max-per-day: 50000
+  count-per-day: 3
+  max-per-transaction: 20000
+deposit:
+  max-per-day: 150000
+  count-per-day: 4
+  max-per-transaction: 40000
+
+---
+spring:
+  profiles: staging
+
+withdrawal:
+  max-per-day: 50000
+  count-per-day: 3
+  max-per-transaction: 20000
+deposit:
+  max-per-day: 150000
+  count-per-day: 4
+  max-per-transaction: 40000
+
+---
+spring:
+  profiles: production
+
+withdrawal:
+  max-per-day: 50000
+  count-per-day: 3
+  max-per-transaction: 20000
+deposit:
+  max-per-day: 150000
+  count-per-day: 4
+  max-per-transaction: 40000
+
+---
+spring:
+  profiles: test
+
+withdrawal:
+  max-per-day: 50000
+  count-per-day: 3
+  max-per-transaction: 20000
+deposit:
+  max-per-day: 150000
+  count-per-day: 4
+  max-per-transaction: 40000
