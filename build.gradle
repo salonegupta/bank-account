@@ -1,0 +1,72 @@
+repositories {
+    mavenCentral()
+}
+
+apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'jacoco'
+apply plugin: 'eclipse'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    compile group: 'com.h2database', name: 'h2', version: '1.4.197'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.7'
+
+    compile group: 'org.springframework.boot', name: 'spring-boot', version: '1.4.2.RELEASE'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '1.4.2.RELEASE'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '1.4.2.RELEASE'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '1.4.2.RELEASE'
+    compile group: 'org.springframework.boot', name: 'spring-boot-configuration-processor', version: '1.4.2.RELEASE'
+    compile group: 'javax.persistence', name: 'javax.persistence-api', version: '2.2'
+
+    compile group: 'org.aspectj', name: 'aspectjweaver', version: '1.8.9'
+
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.8.1'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.1'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.8.1'
+
+    compile group: 'org.redisson', name: 'redisson', version: '2.2.21'
+    compile group: 'de.ruedigermoeller', name: 'fst', version: '2.47'
+
+    compile group: 'org.yaml', name: 'snakeyaml', version: '1.17'
+
+    compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.6.2'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.6.2'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-web', version: '2.6.2'
+
+    compile group: 'io.springfox', name: 'springfox-swagger2', version: '2.5.0'
+    compile group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.5.0'
+    
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '1.10.19'
+
+}
+
+configurations {
+  runtime.exclude group: 'org.slf4j', module: 'log4j-over-slf4j'
+  runtime.exclude group: 'ch.qos.logback', module: 'logback-classic'
+  runtime.exclude group: 'ch.qos.logback', module: 'logback-core'
+}
+
+war {
+    baseName = 'accounts'
+    version =  '1.0.0'
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+        html.destination "${buildDir}/reports/coverage"
+    }
+}
+
+check.dependsOn jacocoTestReport
+
+test { finalizedBy jacocoTestReport }
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.2'
+}
+
+

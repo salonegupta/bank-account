@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="DEBUG">
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+      <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+    </Console>
+    <RollingFile name="RollingFile" fileName="logs/accounts.log"
+      filePattern="logs/accounts-%d{yyyy-MM-dd}.log.gz">
+      <JSONLayout complete="true" compact="false" />
+      <Policies>
+        <TimeBasedTriggeringPolicy interval="1"
+          modulate="true" />
+      </Policies>
+      <DefaultRolloverStrategy max="1" />
+    </RollingFile>
+  </Appenders>
+  <Loggers>
+    <Root level="ERROR">
+      <AppenderRef ref="RollingFile" />
+    </Root>
+    <logger name="com.banking" level="DEBUG" />
+  </Loggers>
+</Configuration>
