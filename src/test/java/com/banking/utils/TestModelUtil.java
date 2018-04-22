@@ -19,11 +19,11 @@ import com.banking.utils.AccountConfiguration.Withdrawal;
 public class TestModelUtil {
 
 	public static Account accountWithZeroBalance() {
-		return new Account("GLOBAL", 0);
+		return new Account("global", 0);
 	}
 
 	public static Account accountWithNonZeroBalance(double balance) {
-		return new Account("GLOBAL", balance);
+		return new Account("global", balance);
 	}
 
 	public static Transaction depositTransactionWithZeroAmount(Account account) {

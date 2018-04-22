@@ -2,15 +2,16 @@ package com.banking.data.model;
 
 public class TransactionResponse {
 
-	private long id;
+	private long transactionId;
 
-	public TransactionResponse() {}
-	
-	public TransactionResponse(long id) {
-		this.id = id;
+	public TransactionResponse() {
 	}
-	
-	public long getId() {
-		return id;
+
+	public TransactionResponse(long transactionId) {
+		this.transactionId = transactionId;
+	}
+
+	public long getTransactionId() {
+		return transactionId;
 	}
 }

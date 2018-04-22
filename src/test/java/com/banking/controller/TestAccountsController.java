@@ -101,4 +101,29 @@ public class TestAccountsController {
 		assertEquals(expectedCode, error.getCode());
 		assertEquals(MessageUtil.getMessageResourceString(messageSource, expectedCode), error.getMessage());
 	}
+
+	@Test
+	public void checkTransactionDetailsWithGeneralException() {
+		AccountsController controller = new AccountsController();
+
+		IAccountService service = mock(IAccountService.class);
+		when(service.getTransactionDetails(any(String.class), any(Long.class)))
+				.thenThrow(new RuntimeException("Something went wrong"));
+
+		ReloadableResourceBundleMessageSource messageSource = TestModelUtil.messageResource();
+
+		controller.setAccountService(service);
+		controller.setMessageSource(messageSource);
+
+		ResponseEntity<Response> response = controller.checkTransactionDetails("global", 1L);
+		assertFalse(response.getBody().isSuccess());
+		assertTrue(response.getBody() instanceof ErrorResponse);
+
+		ErrorResponse errorResponse = (ErrorResponse) response.getBody();
+		Error error = errorResponse.getError();
+
+		String expectedCode = HttpStatus.INTERNAL_SERVER_ERROR.name();
+		assertEquals(expectedCode, error.getCode());
+		assertEquals(MessageUtil.getMessageResourceString(messageSource, expectedCode), error.getMessage());
+	}
 }

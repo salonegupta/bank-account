@@ -22,6 +22,7 @@ import com.banking.data.model.Error;
 import com.banking.data.model.ErrorResponse;
 import com.banking.data.model.Response;
 import com.banking.data.model.SuccessResponse;
+import com.banking.data.model.TransactionDetails;
 import com.banking.data.model.TransactionResponse;
 import com.banking.exceptions.AccountException;
 import com.banking.handlers.utils.LogMessage;
@@ -123,6 +124,36 @@ public class AccountsController {
 			Map<String, Object> params = new HashMap<>();
 			params.put("account-number", accountNumber);
 			params.put("amount", request.getAmount());
+
+			logErrorMessage(e.getMessage(), params);
+
+			return generateInternalErrorResponse();
+		}
+	}
+
+	@ApiOperation(value = "To check transaction details")
+	@RequestMapping(value = "{account-number}/transactions/{transaction-id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Response> checkTransactionDetails(
+			@PathVariable(value = "account-number") String accountNumber,
+			@PathVariable(value = "transaction-id") long transactionId) {
+		try {
+			TransactionDetails transactionDetails = accountService.getTransactionDetails(accountNumber, transactionId);
+			SuccessResponse response = new SuccessResponse();
+			response.setPayload(transactionDetails);
+
+			return new ResponseEntity<Response>(response, HttpStatus.OK);
+		} catch (AccountException e) {
+			Map<String, Object> params = new HashMap<>();
+			params.put("account-number", accountNumber);
+			params.put("transaction-id", transactionId);
+
+			logErrorMessage(e.getMessage(), params);
+
+			return generateErrorResponse(e);
+		} catch (Exception e) {
+			Map<String, Object> params = new HashMap<>();
+			params.put("account-number", accountNumber);
+			params.put("transaction-id", transactionId);
 
 			logErrorMessage(e.getMessage(), params);
 

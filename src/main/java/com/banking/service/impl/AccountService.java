@@ -10,10 +10,13 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.banking.dao.AccountDao;
+import com.banking.dao.TransactionDao;
 import com.banking.data.model.AccountBalance;
+import com.banking.data.model.TransactionDetails;
 import com.banking.data.model.TransactionResponse;
 import com.banking.exceptions.AccountException;
 import com.banking.model.Account;
+import com.banking.model.Transaction;
 import com.banking.service.IAccountService;
 import com.banking.service.IDepositService;
 import com.banking.service.IWithdrawalService;
@@ -26,6 +29,9 @@ public class AccountService implements IAccountService {
 
 	@Autowired
 	private AccountDao accountDao;
+
+	@Autowired
+	private TransactionDao transactionDao;
 
 	@Autowired
 	@Lazy
@@ -84,6 +90,22 @@ public class AccountService implements IAccountService {
 		}
 	}
 
+	@Override
+	public TransactionDetails getTransactionDetails(String accountNumber, long transactionId) {
+		Account account = getAccount(accountNumber);
+		if (account == null) {
+			throw new AccountException(Constants.AccountErrors.ACCOUNT_NOT_FOUND);
+		}
+
+		Transaction transaction = transactionDao.findByAccountNumberAndId(accountNumber, transactionId);
+		if (transaction == null) {
+			throw new AccountException(Constants.AccountErrors.TRANSACTION_NOT_FOUND);
+		}
+
+		return new TransactionDetails(transaction.getId(), transaction.getType().toString(), transaction.getAmount(),
+				accountNumber);
+	}
+
 	private Account getAccount(String accountNumber) {
 		return accountDao.findByNumber(accountNumber);
 	}
@@ -98,6 +120,10 @@ public class AccountService implements IAccountService {
 
 	public void setDepositService(IDepositService depositService) {
 		this.depositService = depositService;
+	}
+
+	public void setTransactionDao(TransactionDao transactionDao) {
+		this.transactionDao = transactionDao;
 	}
 
 }

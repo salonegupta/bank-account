@@ -5,6 +5,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Date;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +26,11 @@ import com.banking.data.model.Error;
 import com.banking.data.model.ErrorResponse;
 import com.banking.data.model.Response;
 import com.banking.data.model.SuccessResponse;
+import com.banking.data.model.TransactionDetails;
 import com.banking.data.model.TransactionResponse;
 import com.banking.model.Account;
+import com.banking.model.Transaction;
+import com.banking.model.Transaction.TransactionType;
 import com.banking.utils.Constants;
 import com.banking.utils.MessageUtil;
 import com.banking.utils.TestModelUtil;
@@ -246,7 +251,7 @@ public class TestAccountsControllerIntegration {
 		assertTrue(successResponse.getPayload() instanceof TransactionResponse);
 
 		TransactionResponse transactionResponse = (TransactionResponse) successResponse.getPayload();
-		assertEquals(1L, transactionResponse.getId());
+		assertEquals(1L, transactionResponse.getTransactionId());
 	}
 
 	@Test
@@ -432,6 +437,63 @@ public class TestAccountsControllerIntegration {
 		assertTrue(successResponse.getPayload() instanceof TransactionResponse);
 
 		TransactionResponse transactionResponse = (TransactionResponse) successResponse.getPayload();
-		assertEquals(1L, transactionResponse.getId());
+		assertEquals(1L, transactionResponse.getTransactionId());
+	}
+
+	@Test
+	@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
+	public void checkTransactionDetailsForExistingAccount() {
+		Account account = accountDao.save(new Account("global", 1000));
+		Transaction transaction = transactionDao
+				.save(new Transaction(1000, TransactionType.DEPOSIT, new Date(), account));
+
+		ResponseEntity<Response> response = controller.checkTransactionDetails("global", 1L);
+		assertTrue(response.getBody().isSuccess());
+		assertTrue(response.getBody() instanceof SuccessResponse);
+
+		SuccessResponse successResponse = (SuccessResponse) response.getBody();
+		assertTrue(successResponse.getPayload() instanceof TransactionDetails);
+
+		TransactionDetails transactionDetails = (TransactionDetails) successResponse.getPayload();
+		assertEquals(transaction.getAmount(), transactionDetails.getAmount(), 0.0001);
+		assertEquals(account.getNumber(), transactionDetails.getAccountNumber());
+		assertEquals(transaction.getType().toString(), transactionDetails.getType());
+		assertEquals(transaction.getId(), transactionDetails.getId());
+	}
+
+	@Test
+	@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
+	public void checkTransactionDetailsForNonExistingAccount() {
+		ResponseEntity<Response> response = controller.checkTransactionDetails("global", 1L);
+		assertFalse(response.getBody().isSuccess());
+		assertTrue(response.getBody() instanceof ErrorResponse);
+
+		ErrorResponse errorResponse = (ErrorResponse) response.getBody();
+		Error error = errorResponse.getError();
+
+		String expectedCode = Constants.AccountErrors.ACCOUNT_NOT_FOUND;
+		String expectedMessage = MessageUtil.getMessageResourceString(messageSource, expectedCode);
+
+		assertEquals(expectedCode, error.getCode());
+		assertEquals(expectedMessage, error.getMessage());
+	}
+
+	@Test
+	@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
+	public void checkTransactionDetailsForNonExistingTransaction() {
+		accountDao.save(new Account("global", 1000));
+
+		ResponseEntity<Response> response = controller.checkTransactionDetails("global", 1L);
+		assertFalse(response.getBody().isSuccess());
+		assertTrue(response.getBody() instanceof ErrorResponse);
+
+		ErrorResponse errorResponse = (ErrorResponse) response.getBody();
+		Error error = errorResponse.getError();
+
+		String expectedCode = Constants.AccountErrors.TRANSACTION_NOT_FOUND;
+		String expectedMessage = MessageUtil.getMessageResourceString(messageSource, expectedCode);
+
+		assertEquals(expectedCode, error.getCode());
+		assertEquals(expectedMessage, error.getMessage());
 	}
 }

@@ -9,10 +9,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.banking.dao.AccountDao;
+import com.banking.dao.TransactionDao;
 import com.banking.data.model.AccountBalance;
+import com.banking.data.model.TransactionDetails;
 import com.banking.data.model.TransactionResponse;
 import com.banking.exceptions.AccountException;
 import com.banking.model.Account;
+import com.banking.model.Transaction;
 import com.banking.service.impl.AccountService;
 import com.banking.utils.Constants;
 import com.banking.utils.TestModelUtil;
@@ -94,7 +97,7 @@ public class TestAccountService {
 		service.setWithdrawalService(withdrawalService);
 
 		TransactionResponse response = service.makeWithdrawal("global", 500);
-		assertEquals(1L, response.getId());
+		assertEquals(1L, response.getTransactionId());
 	}
 
 	@Test
@@ -112,6 +115,63 @@ public class TestAccountService {
 		service.setDepositService(depositService);
 
 		TransactionResponse response = service.makeDeposit("global", 500);
-		assertEquals(1L, response.getId());
+		assertEquals(1L, response.getTransactionId());
+	}
+
+	@Test
+	public void getTransactionDetailsForNonExistingAccount() {
+		AccountDao accountDao = mock(AccountDao.class);
+		when(accountDao.findByNumber("global")).thenReturn(null);
+
+		thrown.expect(AccountException.class);
+		thrown.expectMessage(Constants.AccountErrors.ACCOUNT_NOT_FOUND);
+
+		AccountService service = new AccountService();
+		service.setAccountDao(accountDao);
+
+		service.getTransactionDetails("global", 1);
+	}
+
+	@Test
+	public void getTransactionDetailsForNonExistingTransaction() {
+		Account account = TestModelUtil.accountWithNonZeroBalance(1000);
+
+		AccountDao accountDao = mock(AccountDao.class);
+		when(accountDao.findByNumber("global")).thenReturn(account);
+
+		TransactionDao transactionDao = mock(TransactionDao.class);
+		when(transactionDao.findByAccountNumberAndId(account.getNumber(), 1L)).thenReturn(null);
+
+		thrown.expect(AccountException.class);
+		thrown.expectMessage(Constants.AccountErrors.TRANSACTION_NOT_FOUND);
+
+		AccountService service = new AccountService();
+		service.setAccountDao(accountDao);
+		service.setTransactionDao(transactionDao);
+
+		service.getTransactionDetails("global", 1L);
+	}
+
+	@Test
+	public void getTransactionDetailsForExistingAccount() {
+		Account account = TestModelUtil.accountWithNonZeroBalance(1000);
+		Transaction transaction = TestModelUtil.depositTransactionWithNonZeroAmount(1000, account);
+		transaction.setId(1L);
+
+		AccountDao accountDao = mock(AccountDao.class);
+		when(accountDao.findByNumber("global")).thenReturn(account);
+
+		TransactionDao transactionDao = mock(TransactionDao.class);
+		when(transactionDao.findByAccountNumberAndId(account.getNumber(), 1L)).thenReturn(transaction);
+
+		AccountService service = new AccountService();
+		service.setAccountDao(accountDao);
+		service.setTransactionDao(transactionDao);
+
+		TransactionDetails details = service.getTransactionDetails("global", 1L);
+		assertEquals(1L, details.getId());
+		assertEquals("DEPOSIT", details.getType());
+		assertEquals("global", details.getAccountNumber());
+		assertEquals(1000D, details.getAmount(), 0.0001);
 	}
 }

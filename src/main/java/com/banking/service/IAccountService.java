@@ -1,6 +1,7 @@
 package com.banking.service;
 
 import com.banking.data.model.AccountBalance;
+import com.banking.data.model.TransactionDetails;
 import com.banking.data.model.TransactionResponse;
 
 /**
@@ -16,4 +17,6 @@ public interface IAccountService {
 	TransactionResponse makeWithdrawal(String accountNumber, double amount);
 
 	TransactionResponse makeDeposit(String accountNumber, double amount);
+
+	TransactionDetails getTransactionDetails(String accountNumber, long transactionId);
 }

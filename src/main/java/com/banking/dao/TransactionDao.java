@@ -20,4 +20,6 @@ public interface TransactionDao extends CrudRepository<Transaction, Long> {
 			@Param("startDate") Date startDate, @Param("endDate") Date endDate,
 			@Param("type") Transaction.TransactionType type);
 
+	@Query(value = "from Transaction transaction where transaction.account.number = :accountNumber and transaction.id = :id ")
+	Transaction findByAccountNumberAndId(@Param("accountNumber") String accountNumber, @Param("id") long id);
 }
