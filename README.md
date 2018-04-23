@@ -31,7 +31,7 @@ method definitions. For example: `makeWithdrawal` method present in `WithdrawalS
 annotated with `@ValidateAccountTransaction`.
 
 ### How to run the project? ###
-* Run `gradle wrapper` command. This will generate a script: `gradlew.sh`
+* Run `gradle wrapper` command from Project root directory. This will generate a script: `gradlew.sh`
 * Execute `./gradlew bootRun` from Project root directory
 * Internet Connection needed to donwload jars from Maven Repo
 
