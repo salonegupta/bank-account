@@ -43,6 +43,9 @@ annotated with `@ValidateAccountTransaction`.
 
 Here, GLOBAL is an account number for the Global account.
 
+### Swagger Documentation
+Swagger documentation can be accessed at http://localhost:8080/swagger-ui.html#/accounts-controller
+
 ### Executing API calls using Curl
 #### To check account balance:
 `curl http://localhost:8080/v1/accounts/GLOBAL/balance`
